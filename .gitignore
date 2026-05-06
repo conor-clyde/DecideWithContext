@@ -5,6 +5,6 @@
 backend/target/
 backend/.mvn/wrapper/maven-wrapper.jar
 
-# Optional frontend artifacts (if/when added)
+# Frontend (Create React App)
 frontend/node_modules/
-frontend/dist/
+frontend/build/
