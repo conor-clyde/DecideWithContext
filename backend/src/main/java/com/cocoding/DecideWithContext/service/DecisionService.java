@@ -19,7 +19,7 @@ public class DecisionService {
 
     public List<CandidateOption> getRecommendations(UserContext context) {
         List<CandidateOption> candidates = generateCandidates(context);
-        return aiService.rankCandidates(candidates, context);
+        return aiService.rankCandidates(candidates);
     }
 
     private List<CandidateOption> generateCandidates(UserContext context) {
