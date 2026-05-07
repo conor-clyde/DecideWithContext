@@ -30,7 +30,7 @@ public class AIService {
                 Return only the ranked list.
                 """;
         try {
-            gemini.get().models.generateContent(GEMINI_MODEL, prompt, null);
+           // gemini.get().models.generateContent(GEMINI_MODEL, prompt, null);
         } catch (Exception ignored) {
             // For this stage we do not fail decision flow if AI is unavailable.
         }

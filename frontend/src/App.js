@@ -1,21 +1,43 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Layout from "./components/Layout";
-import About from "./pages/About";
+import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import Recommend from "./pages/Recommend";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
 
-function App() {
+function navClass({ isActive }) {
+  return isActive ? "active" : undefined;
+}
+
+export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
+      <header className="top">
+        <NavLink to="/" end className="brand">
+          DecideWithContext
+        </NavLink>
+        <nav>
+          <NavLink to="/" end className={navClass}>
+            Home
+          </NavLink>
+          <NavLink to="/login" className={navClass}>
+            Login
+          </NavLink>
+          <NavLink to="/register" className={navClass}>
+            Register
+          </NavLink>
+          <NavLink to="/profile" className={navClass}>
+            Profile
+          </NavLink>
+        </nav>
+      </header>
+      <main>
+        <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/recommend" element={<Recommend />} />
-          <Route path="/about" element={<About />} />
-        </Route>
-      </Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </main>
     </BrowserRouter>
   );
 }
-
-export default App;

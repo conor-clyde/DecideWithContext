@@ -1,7 +1,9 @@
 package com.cocoding.DecideWithContext.service;
 
 import com.cocoding.DecideWithContext.model.CandidateOption;
+import com.cocoding.DecideWithContext.model.Activity;
 import com.cocoding.DecideWithContext.model.UserContext;
+import com.cocoding.DecideWithContext.repository.ActivityRepository;
 import com.cocoding.DecideWithContext.service.ai.AIService;
 
 import org.springframework.stereotype.Service;
@@ -12,9 +14,11 @@ import java.util.List;
 @Service
 public class DecisionService {
     private final AIService aiService;
+    private final ActivityRepository activityRepository;
 
-    public DecisionService(AIService aiService) {
+    public DecisionService(AIService aiService, ActivityRepository activityRepository) {
         this.aiService = aiService;
+        this.activityRepository = activityRepository;
     }
 
     public List<CandidateOption> getRecommendations(UserContext context) {
@@ -24,35 +28,40 @@ public class DecisionService {
 
     private List<CandidateOption> generateCandidates(UserContext context) {
         List<CandidateOption> candidates = new ArrayList<>();
+        List<Activity> activities = activityRepository.findAll();
 
-        if (context.energyLevel <= 3) {
-            candidates.add(new CandidateOption(
-                    "Music playlist",
-                    "music",
-                    40,
-                    "Low energy detected, suitable for passive listening"));
+        for (Activity activity : activities) {
+            if (activity.getEnergyMin() != null && context.energyLevel < activity.getEnergyMin()) {
+                continue;
+            }
+            if (activity.getEnergyMax() != null && context.energyLevel > activity.getEnergyMax()) {
+                continue;
+            }
+            if (activity.getMinDurationMinutes() != null && context.freeTimeMinutes < activity.getMinDurationMinutes()) {
+                continue;
+            }
+            if (activity.getMaxDurationMinutes() != null && context.freeTimeMinutes > activity.getMaxDurationMinutes()) {
+                continue;
+            }
 
             candidates.add(new CandidateOption(
-                    "Comedy episode",
-                    "movie",
-                    25,
-                    "Light entertainment matches low energy state"));
+                    activity.getName(),
+                    activity.getCategory().getName().toLowerCase(),
+                    activity.getSuggestedDurationMinutes(),
+                    activity.getReasonTemplate()));
         }
 
-        if (context.freeTimeMinutes >= 60) {
-            candidates.add(new CandidateOption(
-                    "Full movie",
-                    "movie",
-                    120,
-                    "Long free time available, full movie is a good option"));
-        }
-
-        if (context.energyLevel > 5) {
-            candidates.add(new CandidateOption(
-                    "Short walk",
-                    "activity",
-                    30,
-                    "High energy detected, suitable for physical activity"));
+        if (candidates.isEmpty()) {
+            for (Activity activity : activities) {
+                candidates.add(new CandidateOption(
+                        activity.getName(),
+                        activity.getCategory().getName().toLowerCase(),
+                        activity.getSuggestedDurationMinutes(),
+                        "Fallback option from activity catalog"));
+                if (candidates.size() >= 5) {
+                    break;
+                }
+            }
         }
 
         return candidates;
